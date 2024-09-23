@@ -1,4 +1,4 @@
-from Subscriber import Subscriber
+from api_library.Subscriber import Subscriber
 
 def subscriber_client():
     try:

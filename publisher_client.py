@@ -1,4 +1,4 @@
-from Publisher import Publisher
+from api_library.Publisher import Publisher
 
 def publisher_client():
     try:

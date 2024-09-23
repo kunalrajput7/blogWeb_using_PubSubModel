@@ -10,6 +10,7 @@ topic_messages = {}
 message_locks = threading.Lock()
 
 def handle_client_connection(client_socket):
+    
     request = client_socket.recv(1024).decode()
     request_data = json.loads(request)
     action = request_data.get('action')
