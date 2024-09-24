@@ -1,13 +1,26 @@
 import time
 import threading
+from api_library.Publisher import Publisher
 from api_library.Subscriber import Subscriber
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
-# Function that each subscriber client will run to subscribe to a topic
+def create_topic_benchmark(topic_name):
+    try:
+        pub = Publisher()
+        pub.registerPublisher()
+        start_time = time.time()
+        status = pub.createTopic(topic_name)
+        end_time = time.time()
+        print(f"Topic '{topic_name}' created in {end_time - start_time:.4f} seconds")
+        return status, end_time - start_time
+    except Exception as e:
+        print(f"Error creating topic: {e}")
+        return f"Error: {e}", 0 
+
 def subscribe_benchmark(topic_name, sid):
     try:
         sub = Subscriber()
-        sub.registerSubscriber()  # Ensure the subscriber is registered
+        sub.registerSubscriber() 
         start_time = time.time()
         status = sub.subscribe(topic_name)
         end_time = time.time()
@@ -15,8 +28,14 @@ def subscribe_benchmark(topic_name, sid):
     except Exception as e:
         return f"Error: {e}", 0 
 
-# Function to benchmark the server's throughput for subscribe
 def benchmark_subscribe(num_clients, topic_name="Hello Kunal"):
+
+
+    create_status, _ = create_topic_benchmark(topic_name)
+    if "Error" in create_status:
+        print("Error creating the topic. Aborting benchmark.")
+        return 0
+
     threads = []
     results = []
     start_time = time.time()
@@ -26,7 +45,6 @@ def benchmark_subscribe(num_clients, topic_name="Hello Kunal"):
         threads.append(thread)
         thread.start()
 
-    # Wait for all threads to complete
     for thread in threads:
         thread.join()
 
@@ -56,9 +74,8 @@ if __name__ == "__main__":
         throughput = benchmark_subscribe(num_clients)
         throughputs.append(throughput)
         client_counts.append(num_clients)
-        num_clients *= 2
+        num_clients *= 2  # Increase the number of clients exponentially
 
-    # Plot the throughput graph
     plt.figure(figsize=(10, 6))
     plt.plot(client_counts, throughputs, marker='o')
     plt.xscale('log')

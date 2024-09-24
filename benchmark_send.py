@@ -2,13 +2,26 @@ import time
 import threading
 import uuid
 from api_library.Publisher import Publisher
-import matplotlib as plt
+import matplotlib.pyplot as plt
 
-# Function that each publisher client will run to send a message
+
+def create_topic_once(topic_name):
+    try:
+        pub = Publisher()
+        pub.registerPublisher()
+        start_time = time.time()
+        status = pub.createTopic(topic_name)
+        end_time = time.time()
+        print(f"Topic '{topic_name}' created in {end_time - start_time:.4f} seconds")
+        return status, end_time - start_time
+    except Exception as e:
+        print(f"Error creating topic: {e}")
+        return f"Error: {e}", 0 
+
 def send_benchmark(topic_name, message, pid):
     try:
         pub = Publisher()
-        pub.registerPublisher()  # Ensure the publisher is registered
+        pub.registerPublisher()
         start_time = time.time()
         status = pub.send(topic_name, message)
         end_time = time.time()
@@ -16,8 +29,13 @@ def send_benchmark(topic_name, message, pid):
     except Exception as e:
         return f"Error: {e}", 0 
 
-# Function to benchmark the server's throughput for send
 def benchmark_send(num_clients, topic_name="Hello Kunal"):
+
+    create_status, _ = create_topic_once(topic_name)
+    if "Error" in create_status:
+        print("Error creating the topic. Aborting benchmark.")
+        return 0
+
     threads = []
     results = []
     start_time = time.time()
@@ -28,7 +46,6 @@ def benchmark_send(num_clients, topic_name="Hello Kunal"):
         threads.append(thread)
         thread.start()
 
-    # Wait for all threads to complete
     for thread in threads:
         thread.join()
 
@@ -60,7 +77,6 @@ if __name__ == "__main__":
         client_counts.append(num_clients)
         num_clients *= 2
 
-    # Plot the throughput graph
     plt.figure(figsize=(10, 6))
     plt.plot(client_counts, throughputs, marker='o')
     plt.xscale('log')

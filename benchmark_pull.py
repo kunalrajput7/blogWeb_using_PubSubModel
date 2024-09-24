@@ -3,11 +3,10 @@ import threading
 from api_library.Subscriber import Subscriber
 import matplotlib as plt
 
-# Function that each subscriber client will run to pull messages
 def pull_benchmark(topic_name, sid):
     try:
         sub = Subscriber()
-        sub.registerSubscriber()  # Ensure the subscriber is registered
+        sub.registerSubscriber()
         start_time = time.time()
         messages = sub.pull(topic_name)
         end_time = time.time()
@@ -15,7 +14,6 @@ def pull_benchmark(topic_name, sid):
     except Exception as e:
         return f"Error: {e}", 0 
 
-# Function to benchmark the server's throughput for pull
 def benchmark_pull(num_clients, topic_name="Hello Kunal"):
     threads = []
     results = []
@@ -26,7 +24,6 @@ def benchmark_pull(num_clients, topic_name="Hello Kunal"):
         threads.append(thread)
         thread.start()
 
-    # Wait for all threads to complete
     for thread in threads:
         thread.join()
 
@@ -58,7 +55,6 @@ if __name__ == "__main__":
         client_counts.append(num_clients)
         num_clients *= 2
 
-    # Plot the throughput graph
     plt.figure(figsize=(10, 6))
     plt.plot(client_counts, throughputs, marker='o')
     plt.xscale('log')
