@@ -5,7 +5,7 @@ class Subscriber:
     def __init__(self, host='127.0.0.1', port=8080):
         self.host = host
         self.port = port
-        self.sid = None  # Store the subscriber ID after registering
+        self.sid = None
 
     def _send_request(self, data):
         try:
@@ -21,7 +21,7 @@ class Subscriber:
             raise
 
     def registerSubscriber(self):
-        # Register the subscriber and store the assigned sid
+        
         request_data = {'action': 'registerSubscriber'}
         response = self._send_request(request_data)
         self.sid = response.get('sid')
@@ -33,11 +33,14 @@ class Subscriber:
             raise Exception("Subscriber not registered. Call registerSubscriber first.")
 
         request_data = {
-            'action': 'subscribe',
-            'sid': self.sid,  # Use the actual subscriber ID
-            'topic': topic
-        }
+        'action': 'subscribe',
+        'sid': self.sid,
+        'topic': topic
+    }
         response = self._send_request(request_data)
+        # Check the response for the subscription status
+        if response:
+            return response.get('status', 'Subscription failed')
         return response.get('status')
 
     def pull(self, topic):

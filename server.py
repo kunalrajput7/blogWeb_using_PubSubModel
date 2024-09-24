@@ -8,9 +8,9 @@ subscribers = {}
 topics = {}
 topic_messages = {}
 message_locks = threading.Lock()
+subscriber_views = {}  # Track how many subscribers have pulled messages for each topic
 
 def handle_client_connection(client_socket):
-    
     request = client_socket.recv(1024).decode()
     request_data = json.loads(request)
     action = request_data.get('action')
@@ -33,6 +33,7 @@ def handle_client_connection(client_socket):
         if topic not in topics:
             topics[topic] = pid
             topic_messages[topic] = []
+            subscriber_views[topic] = 0  # Initialize views count for the topic
             response = {'status': 'Topic created'}
         else:
             response = {'status': 'Topic already exists'}
@@ -44,6 +45,7 @@ def handle_client_connection(client_socket):
         if topic in topics and topics[topic] == pid:
             del topics[topic]
             del topic_messages[topic]
+            del subscriber_views[topic]  # Remove views tracking
             response = {'status': 'Topic deleted'}
         else:
             response = {'status': 'Topic does not exist or unauthorized'}
@@ -77,8 +79,13 @@ def handle_client_connection(client_socket):
         if topic in subscribers[sid]['subscriptions']:
             with message_locks:
                 messages = topic_messages.get(topic, []).copy()
-                topic_messages[topic] = []  # Clear messages after pulling
-            response = {'messages': messages}
+                # Increase the view count for this topic
+                subscriber_views[topic] += 1
+                # Check if all subscribers have pulled messages
+                if subscriber_views[topic] >= len([s for s in subscribers if topic in subscribers[s]['subscriptions']]):
+                    topic_messages[topic] = []  # Clear messages after all have pulled
+                    subscriber_views[topic] = 0  # Reset view count for the topic
+                response = {'messages': messages}
         else:
             response = {'messages': []}
         client_socket.sendall(json.dumps(response).encode())
