@@ -9,9 +9,9 @@ def create_topic_benchmark(topic_name, pid):
         pub = Publisher()
         print(f"Publisher {pid}: Creating topic '{topic_name}'...")
         start_time = time.time()
-        pub.createTopic(topic_name)
+        status = pub.createTopic(topic_name)
         end_time = time.time()
-        print(f"Publisher {pid}: Topic '{topic_name}' created in {end_time - start_time:.4f} seconds")
+        print(f"Publisher {pid}: Topic '{topic_name}' creation status: {status}, time taken: {end_time - start_time:.4f} seconds")
     except Exception as e:
         print(f"Publisher {pid}: Error while creating topic '{topic_name}': {e}")
 
@@ -31,9 +31,13 @@ def benchmark_create_topic(num_clients, topic_prefix="Hello Kunal"):
         thread.join()
 
     total_time = time.time() - start_time
+    total_requests = num_clients  # Number of topics created
+    throughput = total_requests / total_time if total_time > 0 else 0  # Calculate throughput
+
     print(f"\nBenchmark completed with {num_clients} clients.")
     print(f"Total time for {num_clients} clients to create topics: {total_time:.4f} seconds")
-    print(f"Average time per client: {total_time / num_clients:.4f} seconds\n")
+    print(f"Average time per client: {total_time / num_clients:.4f} seconds")
+    print(f"Maximum throughput: {throughput:.2f} topics/second\n")  # Print throughput
 
 if __name__ == "__main__":
     print("Starting benchmark for createTopic()...\n")

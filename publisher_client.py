@@ -10,15 +10,20 @@ def publisher_client():
         pid = pub.registerPublisher()
         print(f"Publisher ID: {pid}")
         
-        # Create a topic
-        print("Creating topic 'Sports'...")
-        pub.createTopic("Sports")
-        print("Created topic 'Sports'")
+        # Create a topic if it doesn't already exist
+        topic = "Sports"
+        print(f"Attempting to create topic '{topic}'...")
+        create_status = pub.createTopic(topic)
+        
+        if create_status == 'Topic already exists':
+            print(f"Topic '{topic}' already exists.")
+        else:
+            print(f"Topic '{topic}' created.")
         
         # Send a message to the topic
-        print("Sending message to 'Sports'...")
-        pub.send("Sports", "Hello, Kunal here, this is a message about Sports!")
-        print("Message sent to 'Sports'")
+        print(f"Sending message to '{topic}'...")
+        pub.send(topic, "Hello, Kunal here, this is a message about Sports!")
+        print(f"Message sent to '{topic}'")
     
     except Exception as e:
         print(f"An error occurred: {e}")

@@ -45,7 +45,6 @@ class Publisher:
         response = self._send_request(request_data)
         return response.get('status')
 
-
     def send(self, topic, message):
         request_data = {
             'action': 'send',
