@@ -1,8 +1,3 @@
-
-# Project Title
-
-A brief description of what this project does and who it's for
-
 # **Publisher-Subscriber Model with Client-Server Architecture**
 
 ## **Overview**
